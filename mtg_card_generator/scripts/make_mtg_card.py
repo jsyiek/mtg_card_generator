@@ -21,8 +21,8 @@ def parse_args():
     parser.add_argument("-n", "--number", help="Number of cards to generate. For each card type inputted, "
                                                "this generates `n` cards of that type.",
                         type=int, default=1)
-    parser.add_argument("-mo", "--markov-order", help="Order of Markov Model to use. Higher orders increase how much "
-                                                      "grammatical sense the cards make while reducing creativity."
+    parser.add_argument("-tcl", "--text-chunk-length", help="Length of text chunk to use. Higher lengths increase "
+                                                      "the card's understandability while reducing creativity."
                                                       "Defaults to third order, which I find tends to perform the "
                                                       "best.",
                         default=3, type=int)
@@ -37,7 +37,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    text_chunk_dictionary, opening_text, lines_in_text = initialize.initialize_aggregated_data(args.markov_order,
+    text_chunk_dictionary, opening_text, lines_in_text = initialize.initialize_aggregated_data(args.text_chunk_length,
                                                                                                args.reset_json)
     for card_type in args.card_type:
         for i in range(args.number):
@@ -48,6 +48,8 @@ def main():
             print(card["rarity"])
             if card["type"] == "Creature":
                 print(f"{card['power_toughness'][0]}/{card['power_toughness'][1]}")
+            elif card["type"] == "Planeswalker":
+                print(card["loyalty"])
             print("----------------------------------------------------\n", end="")
 
 

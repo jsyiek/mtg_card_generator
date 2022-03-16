@@ -1,4 +1,5 @@
 import random
+import re
 
 from collections import OrderedDict
 from fractions import Fraction
@@ -55,7 +56,7 @@ def generate_card(opening_text: Dict[mtg_text_classes.TextChunk, int],
     colors = determine_color(generated_lines)
     pip_intensity = determine_pip_intensity(cmc, generated_lines)
     rendered_lines = render_text.render_text(generated_lines)
-    contains_x = ' x ' in rendered_lines
+    contains_x = bool(re.match("[+\/ ]x[-\/ .,]", rendered_lines))
 
     generated_card = {
         'cmc': cmc,
@@ -68,6 +69,8 @@ def generate_card(opening_text: Dict[mtg_text_classes.TextChunk, int],
 
     if card_type == "Creature":
         generate_creature_parameters(generated_lines, card_generated_so_far=generated_card)
+    elif card_type == "Planeswalker":
+        generate_planeswalker_parameters(generated_lines, card_generated_so_far=generated_card)
 
     return generated_card
 
@@ -77,11 +80,22 @@ def generate_creature_parameters(generated_lines: List[List[mtg_text_classes.Tex
     """
     Helper function to generate extra parameters that are required for creature cards
     """
-    generate_card = {
+    new_parameters = {
         'power_toughness': determine_power_toughness(card_generated_so_far['cmc'], generated_lines),
         'subtypes': determine_subtype(generated_lines)
     }
-    card_generated_so_far.update(generate_card)
+    card_generated_so_far.update(new_parameters)
+
+
+def generate_planeswalker_parameters(generated_lines: List[List[mtg_text_classes.TextChunk]],
+                                     card_generated_so_far: mtg_text_classes.MTGCard):
+    """
+    Helper function reo generate extra parameters that are required for Planeswalker cards
+    """
+    new_parameters = {
+        'loyalty': determine_loyalty(generated_lines)
+    }
+    card_generated_so_far.update(new_parameters)
 
 
 def generate_text_chunk_list(opening_text: Dict[mtg_text_classes.TextChunk, int],
@@ -153,11 +167,7 @@ def determine_random_card_variable(lines: List[List[mtg_text_classes.TextChunk]]
             )
             fallback_total *= text_chunk.total_cards_registered
 
-    try:
-        return select_random(probability_dict)
-    except:
-        print("t")
-        exit()
+    return select_random(probability_dict)
 
 def determine_cmc(lines: List[List[mtg_text_classes.TextChunk]]):
     return int(determine_random_card_variable(lines, ["cmcs"]))

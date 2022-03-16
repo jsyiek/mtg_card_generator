@@ -69,17 +69,17 @@ def gather_data(cards: List[Dict], chunk_length: int = 3) -> Tuple[Dict, Dict, D
         if card_type not in CARD_TYPE_TO_CLASS:
             # Not implemented for it so we skip that type
             continue
-
+        elif "//" in c["name"]:
+            # Support for flip cards not implemented yet
+            continue
         lines = c.get("text", "").replace(c["name"], "~")
         lines = re.sub("\([^)]+\)", "", lines)
         lines = lines.split("\n")
+
         i = 1
-        while i < len(lines):
-            if any(lines[i].startswith(k) for k in [" •", "—"]):
-                lines[i] += lines[i+1]
-                del lines[i+1]
-            else:
-                i += 1
+        for i in range(len(lines)):
+            if "•" in lines[i]:
+                lines[i] = re.sub(" ?• ?", "", lines[i])
 
         lines_in_text[card_type][len(lines)] = lines_in_text[card_type].setdefault(len(lines), 0) + 1
 
