@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from typing import Dict, List, Tuple
 
-import mtg_card_generator.probability_calculation as probability_calculation
+import mtg_card_generator.generator.probability_calculation as probability_calculation
 import mtg_card_generator.data_processing.template_classes.mtg_text_classes as mtg_text_classes
 import mtg_card_generator.data_processing.word_processing.tokenizer as tokenizer
 

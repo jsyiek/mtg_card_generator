@@ -2,9 +2,9 @@ import random
 
 from collections import OrderedDict
 from fractions import Fraction
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
-import mtg_card_generator.probability_calculation as probability_calculation
+import mtg_card_generator.generator.probability_calculation as probability_calculation
 import mtg_card_generator.data_processing.template_classes.mtg_text_classes as mtg_text_classes
 import mtg_card_generator.generator.render_text as render_text
 
@@ -43,7 +43,7 @@ def generate_card(opening_text: Dict[mtg_text_classes.TextChunk, int],
 
     cmc = determine_cmc(generated_lines)
     colors = determine_color(generated_lines)
-    pip_intensity = determine_pip_intensity(generated_lines)
+    pip_intensity = determine_pip_intensity(cmc, generated_lines)
     rendered_lines = render_text.render_text(generated_lines)
     contains_x = '{ X }' in rendered_lines
 
@@ -110,7 +110,23 @@ def generate_text_chunk_list(opening_text: Dict[mtg_text_classes.TextChunk, int]
     return lines
 
 
-def determine_random_card_variable(lines: List[List[mtg_text_classes.TextChunk]], var_names: List[str]):
+def determine_random_card_variable(lines: List[List[mtg_text_classes.TextChunk]],
+                                   var_names: List[str]) -> Union[int, str]:
+    """
+    Given a set of lines on a card(i.e. list of lists of text chunks), this function chooses a random variable that is
+    to be the attribute of the card. The random selection is weighted according to the number of times we have
+    seen these particular attributes appear on cards in the past.
+
+    Assumes that each TextChunk is independent of the others and that the overall probability of a trait being
+    associated with the group is all the probabilities multiplied together.
+
+    Parameters:
+        lines (List[List[TextChunk]): Generated rules text for the card
+        var_names (List[str]): The variables needed to input to the dictionary to get the chances
+
+    Returns:
+        Union[int, str]: The trait in question that we want to determine
+    """
     probability_dict = {}
     fallback_total = 1
     for l in lines:
@@ -138,8 +154,8 @@ def determine_color(lines: List[List[mtg_text_classes.TextChunk]]):
     return determine_random_card_variable(lines, ["colors"])
 
 
-def determine_pip_intensity(lines: List[List[mtg_text_classes.TextChunk]]):
-    return determine_random_card_variable(lines, ["pip_intensity"])
+def determine_pip_intensity(cmc: int, lines: List[List[mtg_text_classes.TextChunk]]):
+    return determine_random_card_variable(lines, ["pip_intensity", cmc])
 
 
 def determine_power_toughness(cmc: int, lines: List[List[mtg_text_classes.TextChunk]]):

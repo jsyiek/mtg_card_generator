@@ -5,6 +5,7 @@
 *text_json.dat
 *text_data.dat
 *test_data.dat
+data
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

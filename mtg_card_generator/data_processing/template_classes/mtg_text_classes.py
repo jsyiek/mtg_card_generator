@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from typing import Dict, List, Tuple, Union
 
-from mtg_card_generator.probability_calculation import format_dictionary
+from mtg_card_generator.generator.probability_calculation import format_dictionary
 
 MTGCard = Dict[str, Union[float, str]]
 """

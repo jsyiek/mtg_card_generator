@@ -33,7 +33,7 @@ def multiply_probability(d1: Dict[Any, int], d2: Dict[Any, int], fallback_d1=1, 
 
     Returns:
         Dict[Any, int]: The combined dictionary
-    """
+"""
     return_dict = {}
     for k in set(d1.keys()).union(d2.keys()):
         return_dict[k] = d1.get(k, fallback_d1) * d2.get(k, fallback_d2)
