@@ -15,7 +15,8 @@ def parse_args():
 
     parser.add_argument("-c", "--card-type", help="Card type to generate. You can enter multiple and it will "
                                                   "generate `n` for each instance entered. Defaults to creature.",
-                        nargs="+", choices=["Creature", "Enchantment", "Instant", "Sorcery", "Planeswalker"],
+                        nargs="+", choices=["Creature", "Enchantment", "Instant", "Sorcery", "Planeswalker",
+                                            "Artifact", "Land"],
                         default=["Creature"])
     parser.add_argument("-n", "--number", help="Number of cards to generate. For each card type inputted, "
                                                "this generates `n` cards of that type.",
@@ -38,11 +39,16 @@ def main():
 
     text_chunk_dictionary, opening_text, lines_in_text = initialize.initialize_aggregated_data(args.markov_order,
                                                                                                args.reset_json)
-
     for card_type in args.card_type:
         for i in range(args.number):
             card = generate_card.generate_card(opening_text, lines_in_text, card_type)
-            print(card)
+            print(card['manacost'])
+            print(card["type"], "-" if card.get("subtypes") else "", card.get("subtypes", ""))
+            print(card["rendered_lines"])
+            print(card["rarity"])
+            if card["type"] == "Creature":
+                print(f"{card['power_toughness'][0]}/{card['power_toughness'][1]}")
+            print("----------------------------------------------------\n", end="")
 
 
 if __name__ == "__main__":

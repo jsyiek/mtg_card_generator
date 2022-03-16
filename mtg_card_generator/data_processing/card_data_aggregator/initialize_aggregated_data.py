@@ -13,6 +13,7 @@ __CARDS_CACHE_PATH = os.path.join(REPOSITORY_PATH, "mtg_card_generator", "data",
 
 this_logger = logging.getLogger()
 
+
 def initialize_aggregated_data(chunk_length=3, reset_json=False) -> Tuple[dict, dict, dict]:
     """
     Loads the parameters for the Markov Model. Can also be used to reload the card data json.

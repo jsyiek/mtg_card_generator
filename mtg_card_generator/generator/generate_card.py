@@ -9,6 +9,16 @@ import mtg_card_generator.data_processing.template_classes.mtg_text_classes as m
 import mtg_card_generator.generator.render_text as render_text
 
 
+COLORS_TO_PIP = {
+    'Black': 'B',
+    'Blue': 'U',
+    'Colorless': 'C',
+    'Green': 'G',
+    'Red': 'R',
+    'White': 'W'
+}
+
+
 def select_random(dictionary: OrderedDict) -> Any:
     """
     Selects a random key from the dictionary. The random choice is weighted by the integer
@@ -45,7 +55,7 @@ def generate_card(opening_text: Dict[mtg_text_classes.TextChunk, int],
     colors = determine_color(generated_lines)
     pip_intensity = determine_pip_intensity(cmc, generated_lines)
     rendered_lines = render_text.render_text(generated_lines)
-    contains_x = '{ X }' in rendered_lines
+    contains_x = ' x ' in rendered_lines
 
     generated_card = {
         'cmc': cmc,
@@ -71,7 +81,7 @@ def generate_creature_parameters(generated_lines: List[List[mtg_text_classes.Tex
         'power_toughness': determine_power_toughness(card_generated_so_far['cmc'], generated_lines),
         'subtypes': determine_subtype(generated_lines)
     }
-    card_generated_so_far.update(card_generated_so_far)
+    card_generated_so_far.update(generate_card)
 
 
 def generate_text_chunk_list(opening_text: Dict[mtg_text_classes.TextChunk, int],
@@ -143,18 +153,24 @@ def determine_random_card_variable(lines: List[List[mtg_text_classes.TextChunk]]
             )
             fallback_total *= text_chunk.total_cards_registered
 
-    return select_random(probability_dict)
-
+    try:
+        return select_random(probability_dict)
+    except:
+        print("t")
+        exit()
 
 def determine_cmc(lines: List[List[mtg_text_classes.TextChunk]]):
-    return determine_random_card_variable(lines, ["cmcs"])
+    return int(determine_random_card_variable(lines, ["cmcs"]))
 
 
 def determine_color(lines: List[List[mtg_text_classes.TextChunk]]):
-    return determine_random_card_variable(lines, ["colors"])
+    colors = determine_random_card_variable(lines, ["colors"])
+    return [COLORS_TO_PIP[c] for c in colors.split()]
 
 
 def determine_pip_intensity(cmc: int, lines: List[List[mtg_text_classes.TextChunk]]):
+    if cmc == 0:
+        return 0
     return determine_random_card_variable(lines, ["pip_intensity", cmc])
 
 
@@ -181,13 +197,16 @@ def determine_mana_cost(pip_intensity: int, cmc: int, colors: List[str], contain
     mana cost, and the variety of different colors in its cost.
     """
     cost = []
-    while pip_intensity > len(colors):
+    if cmc > pip_intensity:
+        cost.append(str(cmc - pip_intensity))
+    while pip_intensity >= len(colors):
         cost += colors
         pip_intensity -= len(colors)
     while pip_intensity > 0:
         cost.append(random.choice(colors))
-    cost.sort()
-    mana_cost = "".join([str(cmc - pip_intensity)] + cost)
+        pip_intensity -= 1
+    mana_cost = "".join(cost)
+    mana_cost = "".join(sorted(list(mana_cost)))
     if contains_x:
         mana_cost = "X" + mana_cost
     return mana_cost

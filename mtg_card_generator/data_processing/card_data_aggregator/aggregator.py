@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import re
 from typing import Dict, List, Tuple
 
 import mtg_card_generator.generator.probability_calculation as probability_calculation
@@ -10,7 +11,9 @@ CARD_TYPE_TO_CLASS = {
     "Instant": mtg_text_classes.TextChunk,
     "Sorcery": mtg_text_classes.TextChunk,
     "Enchantment": mtg_text_classes.TextChunk,
-    "Planeswalker": mtg_text_classes.PlaneswalkerTextChunk
+    "Planeswalker": mtg_text_classes.PlaneswalkerTextChunk,
+    "Artifact": mtg_text_classes.TextChunk,
+    "Land": mtg_text_classes.TextChunk
 }
 
 
@@ -36,7 +39,9 @@ def gather_data(cards: List[Dict], chunk_length: int = 3) -> Tuple[Dict, Dict, D
         "Instant": OrderedDict(),
         "Sorcery": OrderedDict(),
         "Enchantment": OrderedDict(),
-        "Planeswalker": OrderedDict()
+        "Planeswalker": OrderedDict(),
+        "Artifact": OrderedDict(),
+        "Land": OrderedDict()
     }
 
     opening_text = {
@@ -44,7 +49,9 @@ def gather_data(cards: List[Dict], chunk_length: int = 3) -> Tuple[Dict, Dict, D
         "Instant": OrderedDict(),
         "Sorcery": OrderedDict(),
         "Enchantment": OrderedDict(),
-        "Planeswalker": OrderedDict()
+        "Planeswalker": OrderedDict(),
+        "Artifact": OrderedDict(),
+        "Land": OrderedDict()
     }
 
     lines_in_text = {
@@ -52,7 +59,9 @@ def gather_data(cards: List[Dict], chunk_length: int = 3) -> Tuple[Dict, Dict, D
         "Instant": OrderedDict(),
         "Sorcery": OrderedDict(),
         "Enchantment": OrderedDict(),
-        "Planeswalker": OrderedDict()
+        "Planeswalker": OrderedDict(),
+        "Artifact": OrderedDict(),
+        "Land": OrderedDict(),
     }
 
     for c in cards:
@@ -61,7 +70,9 @@ def gather_data(cards: List[Dict], chunk_length: int = 3) -> Tuple[Dict, Dict, D
             # Not implemented for it so we skip that type
             continue
 
-        lines = c.get("text", "").replace(c["name"], "~").split("\n")
+        lines = c.get("text", "").replace(c["name"], "~")
+        lines = re.sub("\([^)]+\)", "", lines)
+        lines = lines.split("\n")
         i = 1
         while i < len(lines):
             if any(lines[i].startswith(k) for k in [" •", "—"]):
