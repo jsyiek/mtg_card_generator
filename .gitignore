@@ -1,3 +1,8 @@
+# temporary test data
+*text_json.dat
+*text_data.dat
+*test_data.dat
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
